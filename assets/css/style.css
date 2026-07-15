@@ -482,7 +482,7 @@ img {
   min-height: 148px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: normal;
   background: linear-gradient(145deg, #0f1823, #142235);
   color: var(--color-white);
 }
