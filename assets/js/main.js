@@ -115,7 +115,7 @@ function renderHero(data) {
         <div class="swiper-wrapper">
           ${slides.map((slide, index) => `
             <article class="swiper-slide hero-slide">
-              <img class="hero-bg" src="${attr(slide.imagem)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
+              <img class="hero-bg" loading="lazy" src="${attr(slide.imagem)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
               <div class="site-container">
                 <div class="hero-content">
                   <p class="hero-ribbon" data-aos="fade-up">${text(data.hero?.ribbon || "")}</p>
