@@ -1,0 +1,216 @@
+@media (min-width: 1440px) {
+  :root {
+    --container: 1180px;
+  }
+
+  .hero-swiper,
+  .hero-slide {
+    min-height: 820px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .nav-panel {
+    gap: var(--space-3);
+  }
+
+  .nav-link {
+    padding-inline: 10px;
+    font-size: 0.82rem;
+  }
+
+  .values-grid,
+  .ministry-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .site-container {
+    width: min(100% - 32px, var(--container));
+  }
+
+  .nav-toggle {
+    display: grid;
+  }
+
+  .nav-panel {
+    position: fixed;
+    inset: 78px 16px auto;
+    display: block;
+    max-height: calc(100dvh - 96px);
+    overflow: auto;
+    border: 1px solid rgba(229, 231, 235, 0.86);
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity var(--transition), transform var(--transition);
+    backdrop-filter: blur(18px);
+  }
+
+  .site-header.menu-open .nav-panel {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .nav-links {
+    display: grid;
+    gap: 0;
+    padding: 10px;
+  }
+
+  .nav-link {
+    justify-content: space-between;
+    border-radius: var(--radius-md);
+    padding: 14px;
+  }
+
+  .brand-title {
+    max-width: 178px;
+  }
+
+  .hero-swiper,
+  .hero-slide {
+    min-height: 680px;
+  }
+
+  .hero-content {
+    padding-block: 104px 88px;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: none;
+  }
+
+  .section-grid,
+  .address-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-grid,
+  .worship-grid,
+  .contact-grid,
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-social {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+
+  .site-container {
+    width: min(100% - 28px, var(--container));
+  }
+
+  .site-nav {
+    min-height: 70px;
+  }
+
+  .nav-panel {
+    inset: 70px 14px auto;
+  }
+
+  .brand-mark {
+    width: 44px;
+  }
+
+  .brand-title {
+    max-width: 150px;
+    font-size: 0.74rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .content-section {
+    padding: 48px 0;
+  }
+
+  .hero-swiper,
+  .hero-slide {
+    min-height: 620px;
+  }
+
+  .hero-slide::before {
+    background:
+      linear-gradient(180deg, rgba(15, 24, 35, 0.74) 0%, rgba(15, 24, 35, 0.84) 100%),
+      radial-gradient(circle at 24% 24%, rgba(13, 116, 170, 0.22), transparent 36%);
+  }
+
+  .hero-content {
+    padding-block: 88px 76px;
+  }
+
+  .hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .btn-modern {
+    width: 100%;
+  }
+
+  .hero-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .values-grid,
+  .ministry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .worship-card,
+  .download-card,
+  .contact-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .event-card {
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+
+  .event-date {
+    min-height: 62px;
+  }
+
+  .map-frame,
+  .map-frame iframe {
+    min-height: 240px;
+  }
+}
+
+@media (max-width: 380px) {
+  .brand-title {
+    max-width: 128px;
+  }
+
+  .hero-title,
+  .section-title {
+    word-break: break-word;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
