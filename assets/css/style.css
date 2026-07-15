@@ -95,7 +95,7 @@ img {
 
 .brand-title {
   display: block;
-  max-width: 210px;
+  max-width: 359px;
   overflow: hidden;
   color: var(--color-ink);
   font-size: 0.84rem;
@@ -338,7 +338,8 @@ img {
 .hero-tagline {
   margin: 12px 0 0;
   color: rgba(255, 255, 255, 0.9);
-  font-family: var(--font-display);
+  font-family: var(--font-primary);
+  font-weight: 400;
   font-size: clamp(1.35rem, 3vw, 2rem);
   font-style: italic;
 }
