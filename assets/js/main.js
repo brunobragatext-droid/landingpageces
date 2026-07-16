@@ -132,15 +132,13 @@ function renderHero(data) {
               <article class="swiper-slide hero-slide">
 
                 <picture>
-                  ${mobileImage ? `
-                    <source 
-                      media="(max-width: 640px)" 
-                      srcset="${attr(mobileImage)}">
-                  ` : ""}
+                  <source 
+                    media="(max-width: 640px)" 
+                    srcset="${attr(slide.imagemMobile || slide.imagem)}">
 
                   <img 
                     class="hero-bg" 
-                    src="${attr(desktopImage)}" 
+                    src="${attr(slide.imagem)}" 
                     alt="${attr(slide.alt || slide.titulo)}"
                     loading="${index === 0 ? "eager" : "lazy"}"
                     decoding="async">
