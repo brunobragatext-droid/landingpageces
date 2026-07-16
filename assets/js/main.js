@@ -148,6 +148,7 @@ function renderHero(data) {
     </section>
   `;
 }
+
 function renderAbout(section) {
   if (!section) return "";
   return `
