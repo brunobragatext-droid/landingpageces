@@ -122,23 +122,25 @@ function renderHero(data) {
 
             const desktopImage = slide.imagem
               ? `${slide.imagem}?v=${cacheBuster}`
-              : '';
+              : "";
 
             const mobileImage = slide.imagemMobile
               ? `${slide.imagemMobile}?v=${cacheBuster}`
-              : '';
+              : "";
 
             return `
               <article class="swiper-slide hero-slide">
 
                 <picture>
-                  <source 
-                    media="(max-width: 640px)" 
-                    srcset="${attr(slide.imagemMobile || slide.imagem)}">
+                  ${mobileImage ? `
+                    <source 
+                      media="(max-width: 640px)" 
+                      srcset="${attr(mobileImage)}">
+                  ` : ""}
 
                   <img 
-                    class="hero-bg" 
-                    src="${attr(slide.imagem)}" 
+                    class="hero-bg"
+                    src="${attr(desktopImage)}"
                     alt="${attr(slide.alt || slide.titulo)}"
                     loading="${index === 0 ? "eager" : "lazy"}"
                     decoding="async">
