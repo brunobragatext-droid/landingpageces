@@ -104,35 +104,42 @@ function renderHeader(data) {
 
 function renderHero(data) {
   const slides = (data.hero?.slides || []).filter((slide) => slide.ativo !== false);
-  const imageUrlWithCacheBust = slide.imagem ? `${slide.imagem}?v=${Date.now()}` : '';
   
   const meta = [
     data.empresa?.telefone ? `<span class="hero-pill"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>${text(data.empresa.telefone)}</span>` : "",
     data.empresa?.endereco ? `<span class="hero-pill"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${text(data.empresa.endereco)}</span>` : ""
   ].join("");
 
+  // Geramos o timestamp uma vez para toda a renderização
+  const cacheBuster = Date.now();
+
   return `
     <section class="hero-section" id="top" aria-label="Destaques">
       <div class="swiper hero-swiper">
         <div class="swiper-wrapper">
-          ${slides.map((slide, index) => `
-            <article class="swiper-slide hero-slide">
-              <img class="hero-bg" src="${attr(imageUrlWithCacheBust)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
-              <div class="site-container">
-                <div class="hero-content">
-                  <p class="hero-ribbon" data-aos="fade-up">${text(data.hero?.ribbon || "")}</p>
-                  <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">${text(slide.titulo)}</h1>
-                  ${slide.tagline ? `<p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">${text(slide.tagline)}</p>` : ""}
-                  <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">${text(slide.subtitulo)}</p>
-                  <div class="hero-actions" data-aos="fade-up" data-aos-delay="270">
-                    ${slide.botao ? `<a class="btn-modern btn-accent" href="${attr(slide.link)}">${text(slide.botao)} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` : ""}
-                    ${slide.botaoSecundario ? `<a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">${text(slide.botaoSecundario)}</a>` : ""}
+          ${slides.map((slide, index) => {
+            // DECLARAÇÃO CORRETA: Agora sim o 'slide' está acessível aqui dentro!
+            const imageUrlWithCacheBust = slide.imagem ? `${slide.imagem}?v=${cacheBuster}` : '';
+
+            return `
+              <article class="swiper-slide hero-slide">
+                <img class="hero-bg" src="${attr(imageUrlWithCacheBust)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
+                <div class="site-container">
+                  <div class="hero-content">
+                    <p class="hero-ribbon" data-aos="fade-up">${text(data.hero?.ribbon || "")}</p>
+                    <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">${text(slide.titulo)}</h1>
+                    ${slide.tagline ? `<p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">${text(slide.tagline)}</p>` : ""}
+                    <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">${text(slide.subtitulo)}</p>
+                    <div class="hero-actions" data-aos="fade-up" data-aos-delay="270">
+                      ${slide.botao ? `<a class="btn-modern btn-accent" href="${attr(slide.link)}">${text(slide.botao)} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` : ""}
+                      ${slide.botaoSecundario ? `<a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">${text(slide.botaoSecundario)}</a>` : ""}
+                    </div>
+                    <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">${meta}</div>
                   </div>
-                  <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">${meta}</div>
                 </div>
-              </div>
-            </article>
-          `).join("")}
+              </article>
+            `;
+          }).join("")}
         </div>
         <div class="swiper-button-prev" aria-label="Slide anterior"></div>
         <div class="swiper-button-next" aria-label="Próximo slide"></div>
@@ -141,7 +148,6 @@ function renderHero(data) {
     </section>
   `;
 }
-
 function renderAbout(section) {
   if (!section) return "";
   return `
