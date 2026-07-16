@@ -109,38 +109,28 @@ function renderHero(data) {
     data.empresa?.endereco ? `<span class="hero-pill"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${text(data.empresa.endereco)}</span>` : ""
   ].join("");
 
-  // Cria um identificador único que muda a cada hora (evita cache do GitHub)
-  const cacheBuster = Math.floor(Date.now() / (1000 * 60 * 60));
-
   return `
     <section class="hero-section" id="top" aria-label="Destaques">
       <div class="swiper hero-swiper">
         <div class="swiper-wrapper">
-          ${slides.map((slide, index) => {
-            // Remove qualquer parâmetro de query antigo (?v=2, etc.)
-            const baseImageUrl = (slide.imagem || "").split("?")[0];
-            // Concatena o novo parâmetro gerado dinamicamente
-            const finalImageUrl = baseImageUrl ? `${baseImageUrl}?cache=${cacheBuster}` : "";
-
-            return `
-              <article class="swiper-slide hero-slide">
-                <img class="hero-bg" src="${attr(finalImageUrl)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
-                <div class="site-container">
-                  <div class="hero-content">
-                    <p class="hero-ribbon" data-aos="fade-up">${text(data.hero?.ribbon || "")}</p>
-                    <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">${text(slide.titulo)}</h1>
-                    ${slide.tagline ? `<p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">${text(slide.tagline)}</p>` : ""}
-                    <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">${text(slide.subtitulo)}</p>
-                    <div class="hero-actions" data-aos="fade-up" data-aos-delay="270">
-                      ${slide.botao ? `<a class="btn-modern btn-accent" href="${attr(slide.link)}">${text(slide.botao)} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` : ""}
-                      ${slide.botaoSecundario ? `<a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">${text(slide.botaoSecundario)}</a>` : ""}
-                    </div>
-                    <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">${meta}</div>
+          ${slides.map((slide, index) => `
+            <article class="swiper-slide hero-slide">
+              <img class="hero-bg" src="${attr(slide.imagem)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
+              <div class="site-container">
+                <div class="hero-content">
+                  <p class="hero-ribbon" data-aos="fade-up">${text(data.hero?.ribbon || "")}</p>
+                  <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">${text(slide.titulo)}</h1>
+                  ${slide.tagline ? `<p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">${text(slide.tagline)}</p>` : ""}
+                  <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">${text(slide.subtitulo)}</p>
+                  <div class="hero-actions" data-aos="fade-up" data-aos-delay="270">
+                    ${slide.botao ? `<a class="btn-modern btn-accent" href="${attr(slide.link)}">${text(slide.botao)} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` : ""}
+                    ${slide.botaoSecundario ? `<a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">${text(slide.botaoSecundario)}</a>` : ""}
                   </div>
+                  <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">${meta}</div>
                 </div>
-              </article>
-            `;
-          }).join("")}
+              </div>
+            </article>
+          `).join("")}
         </div>
         <div class="swiper-button-prev" aria-label="Slide anterior"></div>
         <div class="swiper-button-next" aria-label="Próximo slide"></div>
