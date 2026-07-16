@@ -104,6 +104,8 @@ function renderHeader(data) {
 
 function renderHero(data) {
   const slides = (data.hero?.slides || []).filter((slide) => slide.ativo !== false);
+  const imageUrlWithCacheBust = slide.imagem ? `${slide.imagem}?v=${Date.now()}` : '';
+  
   const meta = [
     data.empresa?.telefone ? `<span class="hero-pill"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>${text(data.empresa.telefone)}</span>` : "",
     data.empresa?.endereco ? `<span class="hero-pill"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${text(data.empresa.endereco)}</span>` : ""
@@ -114,8 +116,6 @@ function renderHero(data) {
       <div class="swiper hero-swiper">
         <div class="swiper-wrapper">
           ${slides.map((slide, index) => `
-            const imageUrlWithCacheBust = slide.imagem ? `${slide.imagem}?v=${Date.now()}` : '';
-
             <article class="swiper-slide hero-slide">
               <img class="hero-bg" src="${attr(imageUrlWithCacheBust)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
               <div class="site-container">
