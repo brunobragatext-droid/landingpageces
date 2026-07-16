@@ -102,7 +102,7 @@ function renderHeader(data) {
   `;
 }
 
-f```javascript
+
 function renderHero(data) {
   const slides = (data.hero?.slides || []).filter((slide) => slide.ativo !== false);
   
@@ -198,8 +198,6 @@ function renderHero(data) {
     </section>
   `;
 }
-```
-
 
 function renderAbout(section) {
   if (!section) return "";
