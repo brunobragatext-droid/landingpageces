@@ -102,6 +102,7 @@ function renderHeader(data) {
   `;
 }
 
+f```javascript
 function renderHero(data) {
   const slides = (data.hero?.slides || []).filter((slide) => slide.ativo !== false);
   
@@ -118,29 +119,78 @@ function renderHero(data) {
       <div class="swiper hero-swiper">
         <div class="swiper-wrapper">
           ${slides.map((slide, index) => {
-            // DECLARAÇÃO CORRETA: Agora sim o 'slide' está acessível aqui dentro!
-            const imageUrlWithCacheBust = slide.imagem ? `${slide.imagem}?v=${cacheBuster}` : '';
+
+            const desktopImage = slide.imagem
+              ? `${slide.imagem}?v=${cacheBuster}`
+              : '';
+
+            const mobileImage = slide.imagemMobile
+              ? `${slide.imagemMobile}?v=${cacheBuster}`
+              : '';
 
             return `
               <article class="swiper-slide hero-slide">
-                <img class="hero-bg" src="${attr(imageUrlWithCacheBust)}" alt="${attr(slide.alt || slide.titulo)}" loading="${index === 0 ? "eager" : "lazy"}" decoding="async">
+
+                <picture>
+                  ${mobileImage ? `
+                    <source 
+                      media="(max-width: 640px)" 
+                      srcset="${attr(mobileImage)}">
+                  ` : ""}
+
+                  <img 
+                    class="hero-bg" 
+                    src="${attr(desktopImage)}" 
+                    alt="${attr(slide.alt || slide.titulo)}"
+                    loading="${index === 0 ? "eager" : "lazy"}"
+                    decoding="async">
+                </picture>
+
                 <div class="site-container">
                   <div class="hero-content">
-                    <p class="hero-ribbon" data-aos="fade-up">${text(data.hero?.ribbon || "")}</p>
-                    <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">${text(slide.titulo)}</h1>
-                    ${slide.tagline ? `<p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">${text(slide.tagline)}</p>` : ""}
-                    <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">${text(slide.subtitulo)}</p>
+                    <p class="hero-ribbon" data-aos="fade-up">
+                      ${text(data.hero?.ribbon || "")}
+                    </p>
+
+                    <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">
+                      ${text(slide.titulo)}
+                    </h1>
+
+                    ${slide.tagline ? `
+                      <p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">
+                        ${text(slide.tagline)}
+                      </p>
+                    ` : ""}
+
+                    <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">
+                      ${text(slide.subtitulo)}
+                    </p>
+
                     <div class="hero-actions" data-aos="fade-up" data-aos-delay="270">
-                      ${slide.botao ? `<a class="btn-modern btn-accent" href="${attr(slide.link)}">${text(slide.botao)} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` : ""}
-                      ${slide.botaoSecundario ? `<a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">${text(slide.botaoSecundario)}</a>` : ""}
+                      ${slide.botao ? `
+                        <a class="btn-modern btn-accent" href="${attr(slide.link)}">
+                          ${text(slide.botao)}
+                          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                        </a>
+                      ` : ""}
+
+                      ${slide.botaoSecundario ? `
+                        <a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">
+                          ${text(slide.botaoSecundario)}
+                        </a>
+                      ` : ""}
                     </div>
-                    <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">${meta}</div>
+
+                    <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">
+                      ${meta}
+                    </div>
                   </div>
                 </div>
               </article>
             `;
           }).join("")}
         </div>
+
         <div class="swiper-button-prev" aria-label="Slide anterior"></div>
         <div class="swiper-button-next" aria-label="Próximo slide"></div>
         <div class="swiper-pagination"></div>
@@ -148,6 +198,8 @@ function renderHero(data) {
     </section>
   `;
 }
+```
+
 
 function renderAbout(section) {
   if (!section) return "";
