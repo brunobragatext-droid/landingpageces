@@ -2,7 +2,7 @@ const STORAGE_KEY = "ces-site-data";
 const VERSION_KEY = "ces-site-version";
 
 // Altere este número sempre que publicar uma alteração importante no site
-const DATA_VERSION = "20260717";
+const DATA_VERSION = "20260715";
 
 const DATA_URL = new URL("../../data/site.json", import.meta.url);
 
