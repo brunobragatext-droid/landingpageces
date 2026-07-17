@@ -41,7 +41,6 @@ function renderSite(data) {
       ${renderContact(data)}
     </main>
     ${renderFooter(data)}
-    <a class="admin-entry" href="admin/" aria-label="Abrir painel administrativo"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></a>
   `;
 
   bindNavigation();
@@ -325,7 +324,7 @@ function renderAgenda(section) {
               </div>
             </article>
           `).join("")}
-          ${section.rodape ? `<p class="placeholder">${text(section.rodape)}</p>` : ""}
+         
         </div>
       </div>
     </section>
