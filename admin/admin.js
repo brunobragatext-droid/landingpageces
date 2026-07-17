@@ -25,7 +25,7 @@ async function boot() {
 
 function renderSetupRequired() {
   app.innerHTML = `<main class="login-page"><section class="login-card">
-    <div class="login-brand"><span class="login-icon"><i class="fa-solid fa-fire"></i></span><div><h1 class="h4 fw-black mb-1">Configure o Firebase</h1><p class="text-white-50 mb-0">O painel está pronto para conectar.</p></div></div>
+    <div class="login-brand"><div><h1 class="h4 fw-black mb-1">Configure o banco</h1><p class="text-white-50 mb-0">O painel está pronto para conectar.</p></div></div>
     <p>Preencha <code>assets/js/firebase-config.js</code> com as credenciais do aplicativo Web.</p>
     <p class="mb-0">Consulte <strong>FIREBASE_SETUP.md</strong> para criar os serviços, usuário e regras.</p>
   </section></main>`;
@@ -39,10 +39,10 @@ function renderLogin() {
           <span class="login-icon"><i class="fa-solid fa-church" aria-hidden="true"></i></span>
           <div>
             <h1 class="h4 fw-black mb-1">Painel CES</h1>
-            <p class="text-white-50 mb-0">Gestão da landing page</p>
+            <p class="text-muted mb-0">Gestão da landing page</p>
           </div>
         </div>
-        <div class="alert alert-info small">Entre com um usuário criado no Firebase Authentication.</div>
+        <div class="alert alert-info small">Entre com um usuário existente.</div>
         <div class="mb-3">
           <label class="form-label" for="loginEmail">E-mail</label>
           <input class="form-control form-control-lg" id="loginEmail" type="email" autocomplete="username" required>
@@ -552,6 +552,32 @@ function normalizeValue(value, valueType) {
     return value.split("\n").map((line) => line.trim()).filter(Boolean);
   }
   return value;
+}
+
+function initAdminShortcut() {
+  const logo = document.querySelector(".brand-lockup");
+  if (!logo) return;
+
+  let clicks = 0;
+  let timer;
+
+  logo.addEventListener("click", (event) => {
+    // Permite o funcionamento normal do link (#top)
+    clicks++;
+
+    clearTimeout(timer);
+
+    timer = setTimeout(() => {
+      clicks = 0;
+    }, 2000);
+
+    if (clicks >= 5) {
+      clicks = 0;
+
+      // Ajuste para a rota do seu painel
+      window.location.href = "./admin.html";
+    }
+  });
 }
 
 function createItem(type) {
