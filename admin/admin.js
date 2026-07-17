@@ -97,7 +97,7 @@ function renderAdmin(activePanel = "geral") {
         <div class="topbar">
           <div>
             <h1>Painel administrativo</h1>
-            <p>Alterações são publicadas no Firebase e refletidas no site em tempo real.</p>
+            <p>Alterações são publicadas e refletidas no site em tempo real.</p>
           </div>
           <div class="toolbar">
             <a class="btn btn-outline-primary" href="../" target="_blank" rel="noopener"><i class="fa-solid fa-eye me-2"></i>Ver site</a>
@@ -441,7 +441,7 @@ function bindAdmin(activePanel) {
 const autosave = debounce(async () => {
   try {
     await StorageService.saveSiteData(state);
-    showToast("Alteração publicada no Firebase.", "success");
+    showToast("Alteração publicada.", "success");
   } catch (error) {
     showToast(error.message || "Não foi possível salvar.", "danger");
   }
@@ -467,7 +467,7 @@ async function handleAction(button, activePanel) {
 
   if (action === "save") {
     await StorageService.saveSiteData(state);
-    showToast("Conteúdo publicado no Firebase.", "success");
+    showToast("Conteúdo publicado.", "success");
     return;
   }
 
