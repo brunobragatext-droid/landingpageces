@@ -1,7 +1,6 @@
 import { StorageService } from "./storage.js";
 import { initHeroCarousel } from "./carousel.js";
 import { initAnimations } from "./animations.js";
-import { AdminBridge } from "./admin.js";
 
 const app = document.querySelector("#app");
 let heroCarousel = null;
@@ -10,13 +9,12 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   showLoading();
-  initSecretLogoTrigger();
 
   try {
     const data = await StorageService.loadSiteData();
     renderSite(data);
-    AdminBridge.onPreviewUpdate((updatedData) => {
-      if (updatedData) renderSite(updatedData);
+    StorageService.subscribeSiteData((updatedData) => renderSite(updatedData), (error) => {
+      console.error("Não foi possível acompanhar as atualizações do Firebase.", error);
     });
   } catch (error) {
     showError(error);
@@ -43,6 +41,7 @@ function renderSite(data) {
       ${renderContact(data)}
     </main>
     ${renderFooter(data)}
+    <a class="admin-entry" href="admin/" aria-label="Abrir painel administrativo"><i class="fa-solid fa-user-gear" aria-hidden="true"></i></a>
   `;
 
   bindNavigation();
@@ -53,7 +52,7 @@ function renderSite(data) {
 function applySeo(data) {
   document.title = data?.seo?.title || data?.empresa?.nome || "Landing Page";
   setMeta("description", data?.seo?.description || "");
-  setMeta("theme-color", data?.seo?.themeColor || "#4C98D0");
+  setMeta("theme-color", data?.seo?.themeColor || "#0D74AA");
 }
 
 function setMeta(name, content) {
@@ -74,7 +73,7 @@ function renderHeader(data) {
     <header class="site-header">
       <nav class="site-container site-nav" aria-label="Menu principal">
         <a class="brand-lockup" href="#top" aria-label="${attr(company.sigla || company.nome)} - início">
-          ${renderLogo("var(--color-primary-dark)", "var(--color-accent)")}
+          ${renderLogo("#0F1823", "#0D74AA")}
           <span>
             <span class="brand-title">${text(company.nome)}</span>
             <span class="brand-subtitle">${text(company.subtitulo)}</span>
@@ -102,95 +101,51 @@ function renderHeader(data) {
   `;
 }
 
-
 function renderHero(data) {
   const slides = (data.hero?.slides || []).filter((slide) => slide.ativo !== false);
-  
   const meta = [
     data.empresa?.telefone ? `<span class="hero-pill"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>${text(data.empresa.telefone)}</span>` : "",
     data.empresa?.endereco ? `<span class="hero-pill"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>${text(data.empresa.endereco)}</span>` : ""
   ].join("");
-
-  // Geramos o timestamp uma vez para toda a renderização
-  const cacheBuster = Date.now();
 
   return `
     <section class="hero-section" id="top" aria-label="Destaques">
       <div class="swiper hero-swiper">
         <div class="swiper-wrapper">
           ${slides.map((slide, index) => {
-
-            const desktopImage = slide.imagem
-              ? `${slide.imagem}?v=${cacheBuster}`
-              : "";
-
-            const mobileImage = slide.imagemMobile
-              ? `${slide.imagemMobile}?v=${cacheBuster}`
-              : "";
+            const loadingStrategy = index === 0 ? "eager" : "lazy";
+            const imgAlt = attr(slide.alt || slide.titulo);
+            
+            // Se houver uma imagem mobile cadastrada, usamos <picture> para alternar dinamicamente
+            const imageMarkup = slide.imagemMobile 
+              ? `
+                <picture>
+                  <source media="(max-width: 768px)" srcset="${attr(slide.imagemMobile)}">
+                  <img src="${attr(slide.imagem)}" alt="${imgAlt}" loading="${loadingStrategy}" decoding="async">
+                </picture>
+              `
+              : `<img src="${attr(slide.imagem)}" alt="${imgAlt}" loading="${loadingStrategy}" decoding="async">`;
 
             return `
               <article class="swiper-slide hero-slide">
-
-                <picture>
-                  ${slide.imagemMobile ? `
-                    <source 
-                      media="(max-width: 640px)"
-                      srcset="${attr(slide.imagemMobile)}">
-                  ` : ""}
-
-                  <img 
-                    class="hero-bg"
-                    src="${attr(slide.imagem)}"
-                    alt="${attr(slide.alt || slide.titulo)}"
-                    loading="${index === 0 ? "eager" : "lazy"}"
-                    decoding="async">
-                </picture>
-
+                ${imageMarkup}
                 <div class="site-container">
                   <div class="hero-content">
-                    <p class="hero-ribbon" data-aos="fade-up">
-                      ${text(data.hero?.ribbon || "")}
-                    </p>
-
-                    <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">
-                      ${text(slide.titulo)}
-                    </h1>
-
-                    ${slide.tagline ? `
-                      <p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">
-                        ${text(slide.tagline)}
-                      </p>
-                    ` : ""}
-
-                    <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">
-                      ${text(slide.subtitulo)}
-                    </p>
-
+                    <p class="hero-ribbon" data-aos="fade-up">${text(data.hero?.ribbon || "")}</p>
+                    <h1 class="hero-title" data-aos="fade-up" data-aos-delay="90">${text(slide.titulo)}</h1>
+                    ${slide.tagline ? `<p class="hero-tagline" data-aos="fade-up" data-aos-delay="150">${text(slide.tagline)}</p>` : ""}
+                    <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="210">${text(slide.subtitulo)}</p>
                     <div class="hero-actions" data-aos="fade-up" data-aos-delay="270">
-                      ${slide.botao ? `
-                        <a class="btn-modern btn-accent" href="${attr(slide.link)}">
-                          ${text(slide.botao)}
-                          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-                        </a>
-                      ` : ""}
-
-                      ${slide.botaoSecundario ? `
-                        <a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">
-                          ${text(slide.botaoSecundario)}
-                        </a>
-                      ` : ""}
+                      ${slide.botao ? `<a class="btn-modern btn-light" href="${attr(slide.link)}">${text(slide.botao)} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>` : ""}
+                      ${slide.botaoSecundario ? `<a class="btn-modern btn-ghost" href="${attr(slide.linkSecundario)}">${text(slide.botaoSecundario)}</a>` : ""}
                     </div>
-
-                    <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">
-                      ${meta}
-                    </div>
+                    <div class="hero-meta" data-aos="fade-up" data-aos-delay="330">${meta}</div>
                   </div>
                 </div>
               </article>
             `;
           }).join("")}
         </div>
-
         <div class="swiper-button-prev" aria-label="Slide anterior"></div>
         <div class="swiper-button-next" aria-label="Próximo slide"></div>
         <div class="swiper-pagination"></div>
@@ -333,14 +288,14 @@ function renderCesHouse(section) {
               <h3 class="card-title">${text(section.download?.titulo)}</h3>
               <p class="card-desc">${text(section.download?.descricao)}</p>
             </div>
-            <a class="btn-modern btn-accent" href="${attr(section.download?.arquivo || "#")}" download>
+            <a class="btn-modern" href="${attr(section.download?.arquivo || "#")}" download>
               <i class="fa-solid fa-download" aria-hidden="true"></i>${text(section.download?.botao || "Baixar")}
             </a>
           </article>
           <article class="card-modern house-card text-center">
-            <h3 class="card-title"><i class="fa-solid fa-location-dot me-2" aria-hidden="true"></i>${text(section.chamada?.titulo)}</h3>
+            <h3 class="card-title"><i class="fa-solid fa-location-dot me-2 text-primary" aria-hidden="true"></i>${text(section.chamada?.titulo)}</h3>
             <p class="card-desc">${text(section.chamada?.descricao)}</p>
-            <span class="badge badge-primary mt-3">${text(section.chamada?.badge)}</span>
+            <span class="badge text-bg-light text-primary mt-3">${text(section.chamada?.badge)}</span>
           </article>
         </div>
       </div>
@@ -370,7 +325,7 @@ function renderAgenda(section) {
               </div>
             </article>
           `).join("")}
-          ${section.rodape ? `<p class="placeholder-text">${text(section.rodape)}</p>` : ""}
+          ${section.rodape ? `<p class="placeholder">${text(section.rodape)}</p>` : ""}
         </div>
       </div>
     </section>
@@ -385,7 +340,7 @@ function renderTestimonials(section) {
         <div data-aos="fade-up">${sectionTitle(section)}</div>
         <div class="mission-grid mt-4">
           ${(section.itens || []).map((item, index) => `
-            <article class="card-modern testimonial-card" data-aos="fade-up" data-aos-delay="${index * 80}">
+            <article class="card-modern" data-aos="fade-up" data-aos-delay="${index * 80}">
               <p class="card-desc">"${text(item.texto)}"</p>
               <h3 class="card-title mt-3">${text(item.nome)}</h3>
             </article>
@@ -439,7 +394,7 @@ function renderContact(data) {
         <div data-aos="fade-up">${sectionTitle(section)}</div>
         <div class="contact-grid mt-4">
           ${(section.cards || []).map((card, index) => `
-            <a class="card-modern contact-card brand-${attr(card.tipo)}" href="${attr(links[card.tipo] || "#")}" target="${card.tipo === "email" ? "_self" : "_blank"}" rel="noopener" data-aos="fade-up" data-aos-delay="${index * 80}">
+            <a class="card-modern contact-card ${attr(card.tipo)}" href="${attr(links[card.tipo] || "#")}" target="${card.tipo === "email" ? "_self" : "_blank"}" rel="noopener" data-aos="fade-up" data-aos-delay="${index * 80}">
               <div>
                 <p class="contact-label"><i class="${attr(card.icone)} me-2" aria-hidden="true"></i>${text(card.label)}</p>
                 <p class="contact-value">${text(card.valor)}</p>
@@ -468,7 +423,7 @@ function renderFooter(data) {
       <div class="site-container">
         <div class="footer-grid">
           <a class="brand-lockup" href="#top" aria-label="${attr(company.nome)} - início">
-            ${renderLogo("#FFFFFF", "var(--color-accent)")}
+            ${renderLogo("#FFFFFF", "#FFFFFF")}
             <span>
               <span class="brand-title">${text(company.nome)}</span>
               <span class="brand-subtitle">CNPJ: ${text(company.cnpj)}</span>
@@ -571,30 +526,6 @@ function currentWeekLabel(fallback) {
 function paragraphs(value) {
   const items = Array.isArray(value) ? value : [value].filter(Boolean);
   return items.map((item) => `<p>${text(item)}</p>`).join("");
-}
-
-function initSecretLogoTrigger() {
-  let logoClicks = 0;
-  let logoClickTimeout;
-
-  // Aguarda o render para garantir que o logo existe no DOM
-  document.addEventListener("click", (e) => {
-    // Verifica se o clique foi na marca (brand-lockup ou brand-mark)
-    if (e.target.closest(".brand-lockup")) {
-      logoClicks++;
-      
-      clearTimeout(logoClickTimeout);
-      
-      // Reseta o contador se você demorar mais de 2 segundos entre os cliques
-      logoClickTimeout = setTimeout(() => {
-        logoClicks = 0;
-      }, 2000);
-
-      if (logoClicks === 5) {
-        window.location.href = "admin/";
-      }
-    }
-  });
 }
 
 function text(value = "") {

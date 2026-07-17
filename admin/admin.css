@@ -248,6 +248,17 @@ a {
   gap: 12px;
 }
 
+.image-preview {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: 150px;
+  margin-bottom: .65rem;
+  border-radius: .75rem;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
 .form-label {
   color: var(--admin-muted);
   font-size: 0.78rem;

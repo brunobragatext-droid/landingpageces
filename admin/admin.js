@@ -9,9 +9,68 @@ document.addEventListener("DOMContentLoaded", boot);
 async function boot() {
   document.documentElement.dataset.theme = localStorage.getItem("ces-admin-theme") || "light";
 
-  // Carrega os dados diretamente, ignorando a validação de login
+  if (!StorageService.isFirebaseConfigured()) {
+    renderSetupRequired();
+    return;
+  }
+
+  if (!await StorageService.getAuthenticatedUser()) {
+    renderLogin();
+    return;
+  }
+
   state = await StorageService.loadSiteData();
   renderAdmin();
+}
+
+function renderSetupRequired() {
+  app.innerHTML = `<main class="login-page"><section class="login-card">
+    <div class="login-brand"><span class="login-icon"><i class="fa-solid fa-fire"></i></span><div><h1 class="h4 fw-black mb-1">Configure o Firebase</h1><p class="text-white-50 mb-0">O painel está pronto para conectar.</p></div></div>
+    <p>Preencha <code>assets/js/firebase-config.js</code> com as credenciais do aplicativo Web.</p>
+    <p class="mb-0">Consulte <strong>FIREBASE_SETUP.md</strong> para criar os serviços, usuário e regras.</p>
+  </section></main>`;
+}
+
+function renderLogin() {
+  app.innerHTML = `
+    <main class="login-page">
+      <form class="login-card" id="loginForm">
+        <div class="login-brand">
+          <span class="login-icon"><i class="fa-solid fa-church" aria-hidden="true"></i></span>
+          <div>
+            <h1 class="h4 fw-black mb-1">Painel CES</h1>
+            <p class="text-white-50 mb-0">Gestão da landing page</p>
+          </div>
+        </div>
+        <div class="alert alert-info small">Entre com um usuário criado no Firebase Authentication.</div>
+        <div class="mb-3">
+          <label class="form-label" for="loginEmail">E-mail</label>
+          <input class="form-control form-control-lg" id="loginEmail" type="email" autocomplete="username" required>
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="loginPassword">Senha</label>
+          <input class="form-control form-control-lg" id="loginPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-primary btn-lg w-100" type="submit">
+          <i class="fa-solid fa-right-to-bracket me-2" aria-hidden="true"></i>Entrar
+        </button>
+      </form>
+    </main>
+  `;
+
+  document.querySelector("#loginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const email = document.querySelector("#loginEmail").value;
+    const password = document.querySelector("#loginPassword").value;
+
+    try {
+      await StorageService.login(email, password);
+      state = await StorageService.loadSiteData();
+      renderAdmin();
+    } catch {
+      showToast("E-mail ou senha inválidos.", "danger");
+    }
+  });
 }
 
 function renderAdmin(activePanel = "geral") {
@@ -38,13 +97,14 @@ function renderAdmin(activePanel = "geral") {
         <div class="topbar">
           <div>
             <h1>Painel administrativo</h1>
-            <p>Alterações são salvas no navegador via LocalStorage e podem ser exportadas como <strong>site.json</strong>.</p>
+            <p>Alterações são publicadas no Firebase e refletidas no site em tempo real.</p>
           </div>
           <div class="toolbar">
             <a class="btn btn-outline-primary" href="../" target="_blank" rel="noopener"><i class="fa-solid fa-eye me-2"></i>Ver site</a>
             <button class="btn btn-outline-secondary" data-action="theme"><i class="fa-solid fa-circle-half-stroke me-2"></i>Modo</button>
             <button class="btn btn-success" data-action="save"><i class="fa-solid fa-floppy-disk me-2"></i>Salvar</button>
             <button class="btn btn-outline-dark" data-action="export"><i class="fa-solid fa-download me-2"></i>Exportar</button>
+            <button class="btn btn-outline-danger" data-action="logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Sair</button>
           </div>
         </div>
 
@@ -345,6 +405,16 @@ function field(label, path, value = "", type = "text", valueType = "string") {
     `;
   }
 
+  if (type === "image") {
+    return `<div class="mb-2 image-field">
+      <label class="form-label" for="${id}">${escapeHtml(label)}</label>
+      ${value ? `<img class="image-preview" src="${safeValue}" alt="Prévia da imagem">` : ""}
+      <input class="form-control" id="${id}" type="url" value="${safeValue}" data-path="${path}" data-value-type="${valueType}">
+      <button class="btn btn-outline-primary btn-sm mt-2" type="button" data-action="upload-image" data-path="${path}"><i class="fa-solid fa-image me-1"></i>Alterar imagem</button>
+      <input class="visually-hidden" type="file" accept="image/*" data-upload-for="${path}">
+    </div>`;
+  }
+
   return `
     <div class="mb-2">
       <label class="form-label" for="${id}">${escapeHtml(label)}</label>
@@ -368,9 +438,13 @@ function bindAdmin(activePanel) {
   });
 }
 
-const autosave = debounce(() => {
-  StorageService.saveLocalData(state);
-  showToast("Alteração salva no navegador.", "success");
+const autosave = debounce(async () => {
+  try {
+    await StorageService.saveSiteData(state);
+    showToast("Alteração publicada no Firebase.", "success");
+  } catch (error) {
+    showToast(error.message || "Não foi possível salvar.", "danger");
+  }
 }, 350);
 
 function handleInput(event) {
@@ -392,8 +466,8 @@ async function handleAction(button, activePanel) {
   }
 
   if (action === "save") {
-    StorageService.saveLocalData(state);
-    showToast("Conteúdo salvo com sucesso.", "success");
+    await StorageService.saveSiteData(state);
+    showToast("Conteúdo publicado no Firebase.", "success");
     return;
   }
 
@@ -403,9 +477,38 @@ async function handleAction(button, activePanel) {
     return;
   }
 
+  if (action === "logout") {
+    await StorageService.logout();
+    renderLogin();
+    return;
+  }
+
+  if (action === "upload-image") {
+    const input = document.querySelector(`[data-upload-for="${path}"]`);
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      button.disabled = true;
+      button.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enviando...';
+      try {
+        const url = await StorageService.uploadImage(file, path);
+        setByPath(state, path, url);
+        await StorageService.saveSiteData(state);
+        showToast("Imagem enviada e publicada.", "success");
+        renderAdmin(activePanel);
+      } catch (error) {
+        showToast(error.message || "Falha ao enviar a imagem.", "danger");
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-image me-1"></i>Alterar imagem';
+      }
+    };
+    input.click();
+    return;
+  }
+
   if (action === "reset") {
     state = await StorageService.loadOriginalData();
-    StorageService.saveLocalData(state);
+    await StorageService.saveSiteData(state);
     showToast("Conteúdo original restaurado.", "warning");
     renderAdmin("json");
     return;
@@ -414,7 +517,7 @@ async function handleAction(button, activePanel) {
   if (action === "apply-json") {
     try {
       state = JSON.parse(document.querySelector("#jsonEditor").value);
-      StorageService.saveLocalData(state);
+      await StorageService.saveSiteData(state);
       showToast("JSON aplicado com sucesso.", "success");
       renderAdmin("json");
     } catch (error) {
@@ -426,7 +529,7 @@ async function handleAction(button, activePanel) {
   if (action === "add") {
     const list = getByPath(state, path);
     list.push(createItem(button.dataset.type));
-    StorageService.saveLocalData(state);
+    await StorageService.saveSiteData(state);
     renderAdmin(activePanel);
     return;
   }
@@ -439,7 +542,7 @@ async function handleAction(button, activePanel) {
     if (action === "up" && index > 0) [list[index - 1], list[index]] = [list[index], list[index - 1]];
     if (action === "down" && index < list.length - 1) [list[index + 1], list[index]] = [list[index], list[index + 1]];
 
-    StorageService.saveLocalData(state);
+    await StorageService.saveSiteData(state);
     renderAdmin(activePanel);
   }
 }
@@ -461,6 +564,7 @@ function createItem(type) {
       subtitulo: "Subtítulo do slide",
       tagline: "Um lugar de experiências",
       imagem: "assets/uploads/hero.jpg",
+      imagemMobile: "",
       alt: "Imagem do slide",
       botao: "Saiba mais",
       link: "#contato",
@@ -530,7 +634,8 @@ const slideSchema = [
   { key: "titulo", label: "Título" },
   { key: "subtitulo", label: "Subtítulo", type: "textarea" },
   { key: "tagline", label: "Tagline" },
-  { key: "imagem", label: "Imagem/caminho" },
+  { key: "imagem", label: "Imagem (Desktop)", type: "image" },
+  { key: "imagemMobile", label: "Imagem (Mobile)", type: "image" }, // <- Novo campo!
   { key: "alt", label: "Alt da imagem" },
   { key: "botao", label: "Botão" },
   { key: "link", label: "Link" },
