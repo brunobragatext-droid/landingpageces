@@ -14,7 +14,7 @@ body {
     linear-gradient(180deg, rgba(13, 116, 170, 0.08), transparent 360px),
     var(--color-soft);
   font-family: var(--font-body);
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -134,11 +134,11 @@ img {
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.72);
-  background: rgba(255, 255, 255, 0.84);
+  border-bottom: 1px solid rgba(15, 24, 35, 0.05);
+  background: rgba(255, 255, 255, 0.75);
   box-shadow: none;
-  backdrop-filter: blur(18px);
-  transition: box-shadow var(--transition), border-color var(--transition), background var(--transition);
+  backdrop-filter: blur(20px) saturate(190%);
+  transition: var(--transition);
 }
 
 .site-header.is-scrolled {
@@ -221,18 +221,19 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 8px;
   border: 1px solid var(--btn-border);
   border-radius: 999px;
   background: var(--btn-bg);
   color: var(--btn-color);
-  padding: 12px 20px;
-  font-size: 0.91rem;
-  font-weight: 800;
+  padding: 12px 24px;
+  font-size: 0.92rem;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
   box-shadow: 0 12px 22px rgba(13, 116, 170, 0.18);
-  transition: transform var(--transition), box-shadow var(--transition), background var(--transition), color var(--transition);
+  transition: var(--transition);
+  cursor: pointer;
 }
 
 .btn-modern:hover {
@@ -414,9 +415,17 @@ img {
   border-radius: 999px;
   background: var(--color-white);
 }
+.section-eyebrow {
+  color: var(--color-primary); /* Azul principal de forma discreta */
+  text-transform: uppercase;
+  font-size: 0.75rem; /* Menor e mais espaçado */
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
 
 .content-section {
-  padding: var(--space-16) 0;
+  padding: 140px 0;
   background: var(--color-white);
   border-bottom: 1px solid var(--color-line);
 }
@@ -448,8 +457,11 @@ img {
 }
 
 .section-title {
-  color: var(--color-ink);
-  font-size: clamp(2.2rem, 4.8vw, 4rem);
+  color: var(--color-primary-dark);
+  font-weight: 700; 
+  font-size: clamp(2.2rem, 3.8vw, 3.2rem); /* Escalonamento fluido */
+  margin-bottom: 32px;
+  letter-spacing: -0.025em;
 }
 
 .section-lead {
@@ -469,18 +481,18 @@ img {
 }
 
 .card-modern {
-  border: 1px solid rgba(229, 231, 235, 0.86);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: var(--shadow-sm);
-  padding: 22px;
-  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  background: var(--color-white);
+  border: 1px solid rgba(13, 116, 170, 0.06); /* Borda quase invisível */
+  border-radius: var(--border-radius);
+  padding: 36px; /* Mais espaço interno */
+  box-shadow: var(--card-shadow);
+  transition: var(--transition);
 }
 
 .card-modern:hover {
-  border-color: rgba(13, 116, 170, 0.2);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-3px);
+  transform: scale(1.015) translateY(-2px); /* Efeito de elevação sutil, sem saltar abruptamente */
+  box-shadow: var(--card-shadow-hover);
+  border-color: rgba(13, 116, 170, 0.12);
 }
 
 .mission-grid,
@@ -497,8 +509,9 @@ img {
   display: flex;
   flex-direction: column;
   justify-content: normal;
-  background: linear-gradient(145deg, #0f1823, #142235);
+  background: var(--color-primary-dark);
   color: var(--color-white);
+  border-left: none;
 }
 
 .mission-label,
@@ -533,6 +546,7 @@ img {
 .value-card {
   border-left: 4px solid var(--color-primary);
   background: var(--color-soft);
+  border-left: none;
 }
 
 .value-name,
@@ -557,15 +571,17 @@ img {
 }
 
 .icon-badge {
-  width: 48px;
-  height: 48px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 999px;
-  background: var(--color-primary-100);
+  background: var(--color-soft);
   color: var(--color-primary);
-  font-size: 1.18rem;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px; /* Formato clássico de app icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  transition: var(--transition);
 }
 
 .worship-time {

@@ -90,7 +90,7 @@ function renderHeader(data) {
             `).join("")}
             ${company.webmail ? `
               <li><a class="nav-link is-external" href="${attr(company.webmail)}" target="_blank" rel="noopener">
-                <i class="fa-solid fa-envelope" aria-hidden="true"></i> E-mail
+                 E-mail
               </a></li>
             ` : ""}
           </ul>
